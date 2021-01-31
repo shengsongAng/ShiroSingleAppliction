@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.business.mapper.GiftUserMapper">
+  <resultMap id="BaseResultMap" type="org.demo.business.entity.GiftUser">
+    <result column="gift_article_id" jdbcType="VARCHAR" property="giftArticleId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <insert id="insert" parameterType="org.demo.business.entity.GiftUser">
+    insert into gift_user (gift_article_id, user_id, create_time
+      )
+    values (#{giftArticleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.demo.business.entity.GiftUser">
+    insert into gift_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="giftArticleId != null">
+        gift_article_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="giftArticleId != null">
+        #{giftArticleId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="findByUserAndArticle" resultMap="BaseResultMap">
+    select * from gift_user
+    where user_id=#{userId} and gift_article_id=#{articleId}
+  </select>
+</mapper>

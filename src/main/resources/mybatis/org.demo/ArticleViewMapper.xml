@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.business.mapper.ArticleViewMapper">
+  <resultMap id="BaseResultMap" type="org.demo.business.entity.ArticleView">
+    <result column="article_id" jdbcType="VARCHAR" property="articleId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <insert id="insert" parameterType="org.demo.business.entity.ArticleView">
+    insert into article_view (article_id, user_id, create_time
+      )
+    values (#{articleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.demo.business.entity.ArticleView">
+    insert into article_view
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="articleId != null">
+        article_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="articleId != null">
+        #{articleId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="statisArticleType" resultType="java.util.Map">
+    SELECT
+      CASE
+        WHEN a.type='1' THEN '学术论坛'
+        WHEN a.type='2' THEN '有奖活动'
+        ELSE '小礼品'
+      END AS typeName,
+      count( av.article_id ) AS count
+    FROM
+        article a
+    LEFT JOIN
+        (
+        SELECT * FROM article_view <if test="month!=null and month!=''">WHERE DATE_FORMAT( create_time, '%Y-%m' ) = #{month}</if>
+        )
+        av ON a.article_id = av.article_id
+    GROUP BY
+        a.type
+  </select>
+</mapper>

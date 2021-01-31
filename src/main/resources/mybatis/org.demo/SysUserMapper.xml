@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.business.mapper.SysUserMapper">
+  <resultMap id="BaseResultMap" type="org.demo.business.entity.SysUser">
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="role_id" jdbcType="VARCHAR" property="roleId" />
+    <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="department" jdbcType="VARCHAR" property="department" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <insert id="insert" parameterType="org.demo.business.entity.SysUser">
+    insert into sys_user (user_id,name, user_name, password,
+      phone, role_id, sex, department,
+      age, create_user, create_time)
+    values (#{userId,jdbcType=VARCHAR},#{name,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{phone,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, #{department,jdbcType=VARCHAR},
+      #{age,jdbcType=INTEGER},#{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="org.demo.business.entity.SysUser">
+    insert into sys_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="department != null">
+        department
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="department != null">
+        #{department,jdbcType=VARCHAR}
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateUser" parameterType="org.demo.business.entity.SysUser">
+    update sys_user set
+    <trim prefix="" suffix="" suffixOverrides=",">
+      <if test="name != null">
+        name=#{name},
+      </if>
+      <if test="password != null">
+        password=#{password},
+      </if>
+      <if test="phone != null">
+        phone=#{phone},
+      </if>
+      <if test="sex != null">
+        sex=#{sex},
+      </if>
+      <if test="age != null">
+        age=#{age},
+      </if>
+      <if test="department != null">
+        department=#{department}
+      </if>
+    </trim>
+    where user_id=#{userId}
+  </update>
+
+  <delete id="deleteUser" parameterType="java.lang.String">
+    delete from sys_user where user_id in
+    <foreach item="item" index="index" collection="userIds.split(',')" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </delete>
+
+  <resultMap id="UserResultMap" type="org.demo.business.entity.system.User">
+    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+    <result column="role_flag" jdbcType="VARCHAR" property="roleFlag" />
+    <association property="sysUser" javaType="org.demo.business.entity.SysUser">
+      <result column="user_id" jdbcType="VARCHAR" property="userId" />
+      <result column="name" jdbcType="VARCHAR" property="name" />
+      <result column="user_name" jdbcType="VARCHAR" property="userName" />
+      <result column="password" jdbcType="VARCHAR" property="password" />
+      <result column="phone" jdbcType="VARCHAR" property="phone" />
+      <result column="role_id" jdbcType="VARCHAR" property="roleId" />
+      <result column="sex" jdbcType="VARCHAR" property="sex" />
+      <result column="department" jdbcType="VARCHAR" property="department" />
+      <result column="age" jdbcType="INTEGER" property="age" />
+      <result column="create_user" jdbcType="INTEGER" property="createUser" />
+      <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    </association>
+  </resultMap>
+  <select id="getUserByUsername" resultMap="UserResultMap">
+    SELECT
+        u.*, r.role_name,
+        r.role_flag
+    FROM
+        sys_user u
+    LEFT JOIN sys_role r ON u.role_id = r.role_id
+    WHERE user_name = #{userName}
+  </select>
+
+  <select id="listUser" resultMap="BaseResultMap">
+    select * from sys_user
+    <where>
+      <if test="userId!=null and userId!=''">
+        create_user = #{userId}
+      </if>
+    </where>
+    ORDER BY
+    create_time desc
+  </select>
+
+  <select id="listGiftByUser" resultType="java.util.Map">
+    SELECT
+        g.user_id,
+        a.title as giftName,
+        g.create_time
+    FROM
+        gift_user g
+        INNER JOIN article a ON g.gift_article_id = a.article_id
+        WHERE g.user_id=#{userId}
+    ORDER BY g.create_time desc
+  </select>
+
+  <select id="statisSubUser" resultType="java.util.Map">
+      SELECT
+          u1.NAME,
+          IFNULL( u2.count, 0 ) AS count
+      FROM sys_user u1
+      LEFT JOIN (
+          SELECT
+              count( 0 ) AS count,
+              create_user
+          FROM
+              sys_user
+          WHERE
+              role_id = '3'
+              <if test="month!=null and month!=''">AND DATE_FORMAT( create_time, '%Y-%m' ) = #{month}</if>
+          GROUP BY
+              create_user
+      ) u2 ON u2.create_user = u1.user_id
+      WHERE
+          u1.role_id = '2'
+      ORDER BY
+          u1.create_time
+  </select>
+
+</mapper>

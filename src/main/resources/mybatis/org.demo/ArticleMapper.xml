@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.business.mapper.ArticleMapper">
+  <resultMap id="BaseResultMap" type="org.demo.business.entity.Article">
+    <result column="article_id" jdbcType="VARCHAR" property="articleId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="link_url" jdbcType="VARCHAR" property="linkUrl" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="ent_time" jdbcType="TIMESTAMP" property="entTime" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="state" jdbcType="VARCHAR" property="state" />
+    <result column="gift_count" jdbcType="INTEGER" property="giftCount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="receive_count" jdbcType="VARCHAR" property="receiveCount" />
+  </resultMap>
+  <insert id="insert" parameterType="org.demo.business.entity.Article">
+    insert into article (article_id, title, link_url, content,
+      img_url, start_time, ent_time, 
+      type, state, gift_count, 
+      create_time, create_user)
+    values (#{articleId,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{linkUrl,jdbcType=VARCHAR},#{content,jdbcType=VARCHAR},
+      #{imgUrl,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{entTime,jdbcType=TIMESTAMP}, 
+      #{type,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{giftCount,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createUser,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="insertSelective" parameterType="org.demo.business.entity.Article">
+    insert into article
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="articleId != null">
+        article_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="linkUrl != null">
+        link_url,
+      </if>
+      <if test="imgUrl != null">
+        img_url,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="entTime != null">
+        ent_time,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="giftCount != null">
+        gift_count,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="articleId != null">
+        #{articleId,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="linkUrl != null">
+        #{linkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl != null">
+        #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entTime != null">
+        #{entTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="giftCount != null">
+        #{giftCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="list" resultMap="BaseResultMap">
+    select f.*,
+      case
+        when f.start_time <![CDATA[<]]> NOW() and f.ent_time<![CDATA[>]]>NOW() then '进行中'
+        when f.start_time <![CDATA[ > ]]> NOW() then '未开始'
+        when f.ent_time <![CDATA[ < ]]> now() then '已结束'
+      end
+      as status
+    from article f
+    <where>
+      <if test="type!=null and type!=''">
+        f.type=#{type}
+      </if>
+    </where>
+    ORDER BY
+        f.create_time
+  </select>
+
+  <select id="findById" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select * from article where article_id=#{articleId}
+  </select>
+
+  <update id="recieveGift" parameterType="java.lang.String">
+    update article set receive_count=receive_count+1 where article_id=#{articleId}
+  </update>
+
+  <delete id="delete" parameterType="java.lang.String">
+    delete from article where article_id in
+    <foreach item="item" index="index" collection="ids.split(',')" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </delete>
+</mapper>
